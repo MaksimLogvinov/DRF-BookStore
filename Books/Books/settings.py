@@ -22,6 +22,8 @@ DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'users.CustomUser'
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'phonenumber_field',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
     'apps.cart',
     'apps.categories',
@@ -50,14 +53,22 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 SITE_ID = 1
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'rest_framework.middleware.AuthenticationMiddleware',
-    'rest_framework.middleware.AuthorizationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
