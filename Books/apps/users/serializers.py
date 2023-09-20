@@ -6,7 +6,7 @@ from apps.users.models import CustomUser
 
 class LoginUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
-        label=gettext("Пароль"),
+        label=gettext('Пароль'),
         required=True,
     )
 
@@ -17,21 +17,21 @@ class LoginUserSerializer(serializers.ModelSerializer):
 
 class UserRegisterSerializer(serializers.Serializer):
     email = serializers.EmailField(
-        label=gettext("Почта"),
+        label=gettext('Почта'),
         required=True
     )
     password1 = serializers.CharField(
-        label=gettext("Пароль"),
+        label=gettext('Пароль'),
         required=True
     )
     password2 = serializers.CharField(
-        label=gettext("Повтор пароля"),
+        label=gettext('Повтор пароля'),
         required=True
     )
 
     def create(self, validated_data):
         if validated_data['password1'] != validated_data['password2']:
-            raise serializers.ValidationError("Пароли не совпадают")
+            raise serializers.ValidationError('Пароли не совпадают')
 
         user = CustomUser(
             email=validated_data['email'],

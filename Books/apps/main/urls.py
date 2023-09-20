@@ -3,27 +3,27 @@ from django.urls import path, include
 from apps.main.views import HomePage
 
 urlpatterns = [
-    path("",
+    path('',
          HomePage.as_view(),
-         name='home_page'),
-    path(
-        "catalog/",
-        include("apps.categories.urls")
     ),
     path(
-        "cart/",
-        include(("apps.cart.urls", "apps.cart"), namespace='cart'),
+        'catalog/',
+        include('apps.categories.urls')
     ),
     path(
-        "order/",
-        include("apps.orders.urls"),
+        'cart/',
+        include(('apps.cart.urls', 'apps.cart'), namespace='cart'),
+    ),
+    path(
+        'order/',
+        include('apps.orders.urls'),
     ),
     path(
         'user/',
-        include("apps.users.urls")
+        include('apps.users.urls')
     ),
     path(
-        "product/",
+        'product/',
         include('apps.products.urls')
     )
 ]

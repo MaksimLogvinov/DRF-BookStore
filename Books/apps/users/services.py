@@ -25,7 +25,7 @@ def send_message(user, url_name, subject, message):
               recipient_list=[user.email],
               from_email=os.environ.get('EMAIL_HOST_USER'),
               fail_silently=False)
-    logging.log(51, gettext("Сообщение отправлено"))
+    logging.log(51, gettext('Сообщение отправлено'))
 
 
 def send_email(recipient, link, subject, message):

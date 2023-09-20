@@ -50,9 +50,9 @@ class UserConfirmEmailView(APIView):
             user.save()
             login(request, user)
             return Response(
-                data={"result": "Ваш электронный адрес успешно активирован"}
+                data={'result': 'Ваш электронный адрес успешно активирован'}
             )
         else:
             return Response(
-                data={"result": "Почта не была подтверждена"}
+                data={'result': 'Почта не была подтверждена'}
             )
