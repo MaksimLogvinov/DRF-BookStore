@@ -5,7 +5,8 @@ from apps.main.views import HomePage
 urlpatterns = [
     path('',
          HomePage.as_view(),
-    ),
+         name='home_page'
+         ),
     path(
         'catalog/',
         include('apps.categories.urls')
