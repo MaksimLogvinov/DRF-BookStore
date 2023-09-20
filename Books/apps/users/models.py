@@ -23,11 +23,13 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
 
         if extra_fields.get('is_staff') is not True:
-            raise ValueError(gettext("Суперпользователь "
-                                     "должен иметь is_staff=True"))
+            raise ValueError(
+                gettext('Суперпользователь должен иметь is_staff=True')
+            )
         if extra_fields.get('is_superuser') is not True:
-            raise ValueError(gettext("Суперпользователь должен иметь "
-                                     "is_superuser=True"))
+            raise ValueError(
+                gettext('Суперпользователь должен иметь is_superuser=True')
+            )
         return self.create_user(email, password, **extra_fields)
 
 
@@ -54,51 +56,51 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     class Meta:
-        verbose_name = gettext("Пользователь")
-        verbose_name_plural = gettext("Пользователи")
+        verbose_name = gettext('Пользователь')
+        verbose_name_plural = gettext('Пользователи')
 
 
 class Profile(models.Model):
     username_id = models.OneToOneField(
         CustomUser,
         related_name='user_profile',
-        verbose_name=gettext("Номер пользователя"),
+        verbose_name=gettext('Номер пользователя'),
         on_delete=models.CASCADE,
     )
     birth_date = models.DateField(
-        verbose_name=gettext("День рождение"),
+        verbose_name=gettext('День рождение'),
         null=True,
         blank=True
     )
     profile_img = models.ImageField(
-        verbose_name=gettext("Фото профиля"),
+        verbose_name=gettext('Фото профиля'),
         null=True,
         blank=True,
-        upload_to="users/profile/"
+        upload_to='users/profile/'
     )
     country = models.TextField(
-        verbose_name=gettext("Страна"),
+        verbose_name=gettext('Страна'),
         max_length=100,
         null=True,
         blank=True
     )
     city = models.TextField(
-        verbose_name=gettext("Город"),
+        verbose_name=gettext('Город'),
         max_length=168,
         null=True,
         blank=True
     )
     phoneNumber = PhoneNumberField(
-        verbose_name=gettext("Номер телефона"),
+        verbose_name=gettext('Номер телефона'),
         unique=True,
         null=True,
         blank=True)
     is_phone_verified = models.BooleanField(
-        verbose_name=gettext("Подтверждение телефона"),
+        verbose_name=gettext('Подтверждение телефона'),
         default=False
     )
     balance = models.DecimalField(
-        verbose_name=gettext("Баланс"),
+        verbose_name=gettext('Баланс'),
         max_digits=8,
         decimal_places=2,
         blank=True,
@@ -108,8 +110,8 @@ class Profile(models.Model):
     objects = models.Manager()
 
     class Meta:
-        verbose_name = gettext("Профиль")
-        verbose_name_plural = gettext("Профили")
+        verbose_name = gettext('Профиль')
+        verbose_name_plural = gettext('Профили')
 
 
 @receiver(post_save, sender=CustomUser)
