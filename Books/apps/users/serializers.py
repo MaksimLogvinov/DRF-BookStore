@@ -40,3 +40,14 @@ class UserRegisterSerializer(serializers.Serializer):
         user.set_password(validated_data['password1'])
         user.save()
         return user
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    new_password1 = serializers.CharField(
+        label=gettext("Новый пароль"),
+        allow_null=False, allow_blank=False
+    )
+    new_password2 = serializers.CharField(
+        label=gettext("Подтверждение нового пароля"),
+        allow_null=False, allow_blank=False
+    )
