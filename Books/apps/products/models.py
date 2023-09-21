@@ -55,11 +55,11 @@ class Products(models.Model):
         verbose_name=gettext("Есть в продаже")
     )
     date_created = models.DateTimeField(
-        verbose_name="Дата появления отзыва",
+        verbose_name="Дата появления",
         auto_now_add=True
     )
     date_uploaded = models.DateTimeField(
-        verbose_name="Дата обновления отзыва",
+        verbose_name="Дата обновления",
         auto_now=True
     )
 
