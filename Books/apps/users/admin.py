@@ -34,7 +34,6 @@ class CustomFilter(admin.SimpleListFilter):
 class CustomUserAdmin(PermissionRequiredMixin, UserAdmin):
     model = CustomUser
     readonly_fields = ('full_name',)
-    change_form_template = 'users/admin/change_form.html'
     permission_required = ('users.add_post', 'users.delete_post')
     list_display = ('email', 'is_staff', 'is_active', 'full_name')
     list_filter = ('is_staff', 'is_active', CustomFilter)

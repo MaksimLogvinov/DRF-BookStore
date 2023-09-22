@@ -1,7 +1,7 @@
 from django.utils.translation import gettext
 from rest_framework import serializers
 
-from apps.users.models import CustomUser
+from apps.users.models import CustomUser, Profile
 
 
 class LoginUserSerializer(serializers.ModelSerializer):
@@ -51,3 +51,30 @@ class ChangePasswordSerializer(serializers.Serializer):
         label=gettext("Подтверждение нового пароля"),
         allow_null=False, allow_blank=False
     )
+
+
+class SaveProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['phoneNumber', 'birth_date', 'country', 'city', 'id']
+
+    def update(self, instance, validated_data):
+        instance.phoneNumber = validated_data['phoneNumber']
+        instance.birth_date = validated_data['birth_date']
+        instance.birth_date = validated_data['birth_date']
+        instance.country = validated_data['country']
+        instance.city = validated_data['city']
+        instance.save()
+        return instance
+
+
+class SaveUserSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data['first_name']
+        instance.last_name = validated_data['last_name']
+        instance.save()
+        return instance
+
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name']

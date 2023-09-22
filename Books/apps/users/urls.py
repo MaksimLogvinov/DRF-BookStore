@@ -2,7 +2,8 @@ from django.urls import path, include
 
 from apps.users.views import (
     RegisterUserView, UserConfirmEmailView, EmailResetPasswordView,
-    ResetPasswordView, ResetPasswordDone, )
+    ResetPasswordView, ResetPasswordDone, ProfileUserView, SecurityUserView,
+    DeleteUser, )
 
 urlpatterns = [
     path(
@@ -12,6 +13,21 @@ urlpatterns = [
     path(
         'register/',
         RegisterUserView.as_view(),
+    ),
+    path(
+        "profile/",
+        ProfileUserView.as_view(),
+        name="profile_user"
+    ),
+    path(
+        "security/",
+        SecurityUserView.as_view(),
+        name="security_user"
+    ),
+    path(
+        "delete/",
+        DeleteUser.as_view(),
+        name='delete_user',
     ),
     path(
         'confirm-email/<str:uidb64>/<str:token>/',

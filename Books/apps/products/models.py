@@ -70,8 +70,8 @@ class Products(models.Model):
         return self.prod_title
 
     class Meta:
-        verbose_name = gettext("Категория товаров")
-        verbose_name_plural = gettext("Категории товаров")
+        verbose_name = gettext("Все товары")
+        verbose_name_plural = gettext("Все товары")
 
 
 class Photos_product(models.Model):

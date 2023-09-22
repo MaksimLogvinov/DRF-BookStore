@@ -8,11 +8,12 @@ from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from apps.users.models import CustomUser
 from apps.users.serializers import UserRegisterSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, SaveUserSerializer, SaveProfileSerializer
 from apps.users.services import send_message
 
 User = get_user_model()
@@ -96,13 +97,59 @@ class EmailResetPasswordView(APIView):
 
 class ResetPasswordDone(CreateAPIView):
     serializer_class = ChangePasswordSerializer
+    permission_classes = (IsAuthenticated, )
 
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(data={'result': 'Неправильно заполнены поля'})
         if serializer.data['new_password1'] == serializer.data['new_password2']:
-            user = CustomUser.objects.get(email=self.request.user.email)
-            user.set_password(str(serializer.data['new_password1']))
-            user.save()
+            request.user.set_password(str(serializer.data['new_password1']))
+            request.user.save()
         return Response(data={'result': 'Ваш пароль был успешно изменён'})
+
+
+class ProfileUserView(CreateAPIView):
+    serializer_class = SaveUserSerializer
+    permission_classes = (IsAuthenticated, )
+    queryset = CustomUser.objects.all()
+
+    def get(self, request):
+        return Response(data={'result': 'Информация о пользователе'})
+
+    def post(self, request, *args, **kwargs):
+        serializer1 = SaveUserSerializer(data=request.POST)
+        if serializer1.is_valid():
+            serializer1.update(
+                instance=request.user,
+                validated_data=serializer1.data
+            )
+        return Response(data={'result': 'Данные успешно обновлены'})
+
+
+class SecurityUserView(APIView):
+    serializer_class = SaveProfileSerializer
+    queryset = CustomUser.objects.all()
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request):
+        data = {'result': 'Функционал пользователя'}
+        return Response(data)
+
+    def post(self, request):
+        serializer = SaveProfileSerializer(data=request.POST)
+        if serializer.is_valid():
+            serializer.update(
+                validated_data=serializer.data,
+                instance=request.user.user_profile
+            )
+        return Response(data={'result': 'Вы успешно изменили данные'})
+
+
+class DeleteUser(APIView):
+    def post(self, request):
+        request.user.delete()
+        return HttpResponseRedirect(
+            redirect_to=reverse('home_page', request=request)
+        )
+
