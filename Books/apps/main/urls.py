@@ -1,8 +1,12 @@
 from django.urls import path, include
+from rest_framework_swagger.views import get_swagger_view
 
 from apps.main.views import HomePage
 
+schema_view = get_swagger_view(title='Pastebin API')
+
 urlpatterns = [
+    path(r'swagger/', schema_view),
     path('',
          HomePage.as_view(),
          name='home_page'

@@ -56,10 +56,10 @@ class ChangePasswordSerializer(serializers.Serializer):
 class SaveProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['phoneNumber', 'birth_date', 'country', 'city', 'id']
+        fields = ['phone_number', 'birth_date', 'country', 'city', 'id']
 
     def update(self, instance, validated_data):
-        instance.phoneNumber = validated_data['phoneNumber']
+        instance.phone_number = validated_data['phone_number']
         instance.birth_date = validated_data['birth_date']
         instance.birth_date = validated_data['birth_date']
         instance.country = validated_data['country']

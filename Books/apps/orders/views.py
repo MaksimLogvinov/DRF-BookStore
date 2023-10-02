@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.cart.cart import Cart
-from apps.cart.services import get_products_in_cart
+from apps.cart.services import get_products
 from apps.orders.models import Orders
 from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import payment_order
@@ -16,7 +16,7 @@ class CreateOrderView(APIView):
 
     def get(self, request):
         return Response(data={
-            "cart": get_products_in_cart(Cart(request)),
+            "cart": get_products(Cart(request)),
             'result': 'Создание заказа'}
         )
 

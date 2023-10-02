@@ -1,10 +1,14 @@
 from django.urls import path
+from rest_framework_swagger.views import get_swagger_view
 
 from apps.cart.views import (
     CartDetail, HistoryOrder,
     OrderReserveView, CartAdd, CartRemove)
 
+schema_view = get_swagger_view(title='Pastebin API')
+
 urlpatterns = [
+    path(r'^$', schema_view),
     path(
         "",
         CartDetail.as_view(),

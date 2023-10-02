@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from apps.cart.cart import Cart
 from apps.cart.serializer import CartAddProductSerializer, DiscountSerializer, \
     OrderReverseSerializer, CartDeleteProductSerializer, HistoryOrderSerializer
-from apps.cart.services import delete_product_from_cart, update_quantity, \
-    add_product_in_cart, get_products_in_cart
+from apps.cart.services import delete_product, update_quantity, \
+    add_product, get_products
 from apps.orders.models import Orders, ReservationProduct
 from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import create_order
