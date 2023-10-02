@@ -90,7 +90,7 @@ class Profile(models.Model):
         null=True,
         blank=True
     )
-    phoneNumber = PhoneNumberField(
+    phone_number = PhoneNumberField(
         verbose_name=gettext('Номер телефона'),
         unique=True,
         null=True,

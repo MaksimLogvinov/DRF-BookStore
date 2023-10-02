@@ -1,3 +1,5 @@
+from _decimal import Decimal
+
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -95,7 +97,7 @@ class OrderItem(models.Model):
 
 @receiver(post_save, sender=Orders)
 def purchase_message(sender, instance, **kwargs):
-    instance.ord_user_id.user_profile.balance -= instance.ord_discount
+    instance.ord_user_id.user_profile.balance -= Decimal(instance.ord_discount)
     send_email(
         instance.ord_user_id.email,
         'cart/history/',
