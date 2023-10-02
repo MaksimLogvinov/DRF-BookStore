@@ -2,12 +2,13 @@ from gettext import gettext
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.urls import path
-from django.template.response import TemplateResponse
-from apps.users.models import CustomUser, Profile
-from django.views.generic import ListView
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.http import Http404
+from django.template.response import TemplateResponse
+from django.urls import path
+from django.views.generic import ListView
+
+from apps.users.models import CustomUser, Profile
 
 
 class ProfilesInlineAdmin(admin.StackedInline):
@@ -26,9 +27,9 @@ class CustomFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'option1':
-            return queryset.order_by("-date_joined")
+            return queryset.order_by('-date_joined')
         if self.value() == 'option2':
-            return queryset.order_by("date_joined")
+            return queryset.order_by('date_joined')
 
 
 class CustomUserAdmin(PermissionRequiredMixin, UserAdmin):
@@ -57,16 +58,16 @@ class CustomUserAdmin(PermissionRequiredMixin, UserAdmin):
 
         def get_context_data(self, *, object_list=None, **kwargs):
             context = super().get_context_data()
-            context.update({"title": gettext("Список пользователей"),
-                            "data": CustomUser.objects.all().values()})
+            context.update({'title': gettext('Список пользователей'),
+                            'data': CustomUser.objects.all().values()})
             return context
 
     def get_info(self, request):
         if not request.user.is_authenticated():
             raise Http404
         context = dict(self.admin_site.each_context(request))
-        context.update({"title": gettext("Реализация действия")})
-        return TemplateResponse(request, "users/admin/testing.html", context)
+        context.update({'title': gettext('Реализация действия')})
+        return TemplateResponse(request, 'users/admin/testing.html', context)
 
 
 admin.site.register(CustomUser, CustomUserAdmin)

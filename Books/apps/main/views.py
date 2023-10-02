@@ -1,9 +1,13 @@
 from django.utils.translation import gettext
+from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.views import APIView
+
+from apps.products.models import Products
 
 
-class HomePage(APIView):
+class HomePageViewSet(viewsets.ViewSet):
+    queryset = Products.objects.all()
+
     def get(self, request):
         if not request.user.is_anonymous:
             content = {'message': f'Hello, {request.user.email}!'}
@@ -12,13 +16,13 @@ class HomePage(APIView):
         return Response(content)
 
 
-class OurShops(APIView):
+class OurShopsViewSet(viewsets.ModelViewSet):
 
     def get(self):
         return Response(data={'title': gettext('Наши магазины')})
 
 
-class ContactSupportView(APIView):
+class ContactSupportViewSet(viewsets.ModelViewSet):
 
     def get(self):
         return Response(data={'title': 'Контакты и поддержка'})

@@ -1,15 +1,15 @@
-from django.urls import path
+from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
-from apps.products.views import ProductInfoView
+from apps.products.views import ProductInfoViewSet
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Products API')
 
-urlpatterns = [
-    path(r'^$', schema_view),
-    path(
-        'info/<slug:prod_slug>/',
-        ProductInfoView.as_view(),
-        name='product_info'
-    )
-]
+
+products_router = routers.SimpleRouter()
+products_router.register(
+    r'info/<slug:prod_slug>',
+    ProductInfoViewSet,
+    basename='product_info'
+)
+urlpatterns = products_router.urls

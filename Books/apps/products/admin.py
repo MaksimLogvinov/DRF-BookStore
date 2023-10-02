@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from apps.products.models import Products, Books, Magazines, Photos_product, \
     TextBooks
 

@@ -1,37 +1,32 @@
-from django.urls import path
+from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
 from apps.categories.views import (
-    MagazineCatalogView, ShowBooksView, ShowMagazinesView, ShowTextbooksView,
-    SearchResultView)
+    MagazineCatalogViewSet, ShowBooksViewSet, ShowMagazinesViewSet,
+    ShowTextbooksViewSet, SearchResultViewSet
+)
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Categories API')
 
-urlpatterns = [
-    path(r'^$', schema_view),
-    path(
-        "",
-        MagazineCatalogView.as_view(),
-        name="magazine_catalog"
-    ),
-    path(
-        "books/",
-        ShowBooksView.as_view(),
-        name="books"
-    ),
-    path(
-        "magazines/",
-        ShowMagazinesView.as_view(),
-        name="magazines"
-    ),
-    path(
-        "textbooks/",
-        ShowTextbooksView.as_view(),
-        name="textbooks"
-    ),
-    path(
-        "search/",
-        SearchResultView.as_view(),
-        name="search"
-    ),
-]
+
+categories_router = routers.SimpleRouter()
+categories_router.register(r'', MagazineCatalogViewSet, basename='catalog')
+categories_router.register(r'books', ShowBooksViewSet, basename='books')
+categories_router.register(
+    r'magazines',
+    ShowMagazinesViewSet,
+    basename='magazines'
+)
+categories_router.register(
+    r'textbooks',
+    ShowTextbooksViewSet,
+    basename='textbooks'
+)
+categories_router.register(
+    r'search',
+    SearchResultViewSet,
+    basename='search'
+)
+urlpatterns = categories_router.urls
+
+
