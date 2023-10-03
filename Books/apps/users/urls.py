@@ -1,55 +1,59 @@
-from django.urls import path, include
+from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
 from apps.users.views import (
-    RegisterUserView, UserConfirmEmailView, EmailResetPasswordView,
-    ResetPasswordView, ResetPasswordDone, ProfileUserView, SecurityUserView,
-    DeleteUser, )
+    RegisterUserViewSet, UserConfirmEmailViewSet, EmailResetPasswordViewSet,
+    ResetPasswordViewSet, ResetPasswordDoneViewSet, ProfileUserViewSet,
+    SecurityUserViewSet, DeleteUserViewSet, ResetPasswordFailedViewSet
+)
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Users API')
 
-urlpatterns = [
-    path(r'^$', schema_view),
-    path(
-        'auth/',
-        include('rest_framework.urls'),
-    ),
-    path(
-        'register/',
-        RegisterUserView.as_view(),
-    ),
-    path(
-        "profile/",
-        ProfileUserView.as_view(),
-        name="profile_user"
-    ),
-    path(
-        "security/",
-        SecurityUserView.as_view(),
-        name="security_user"
-    ),
-    path(
-        "delete/",
-        DeleteUser.as_view(),
-        name='delete_user',
-    ),
-    path(
-        'confirm-email/<str:uidb64>/<str:token>/',
-        UserConfirmEmailView.as_view(),
-        name='confirm_email'
-    ),
-    path(
-        'reset-password/',
-        ResetPasswordView.as_view(),
-    ),
-    path(
-        'reset-password/<str:uidb64>/<str:token>/',
-        EmailResetPasswordView.as_view(),
-        name='password_email'
-    ),
-    path(
-        'reset-password/<str:uidb64>/<str:token>/done/',
-        ResetPasswordDone.as_view(),
-        name='password_email'
-    ),
-]
+users_router = routers.SimpleRouter()
+users_router.register(
+    r'register',
+    RegisterUserViewSet,
+    basename='user_register'
+)
+users_router.register(
+    r'profile',
+    ProfileUserViewSet,
+    basename='user_profile'
+)
+users_router.register(
+    r'security',
+    SecurityUserViewSet,
+    basename='user_security'
+)
+users_router.register(
+    r'delete',
+    DeleteUserViewSet,
+    basename='user_delete'
+)
+users_router.register(
+    r'confirm-email/<str:uidb64>/<str:token>',
+    UserConfirmEmailViewSet,
+    basename='user_confirm_email'
+)
+users_router.register(
+    r'reset-password',
+    ResetPasswordViewSet,
+    basename='reset_password'
+)
+users_router.register(
+    r'reset-password/<str:uidb64>/<str:token>',
+    EmailResetPasswordViewSet,
+    basename='validation_reset_password'
+)
+users_router.register(
+    r'reset-password/<str:uidb64>/<str:token>/done',
+    ResetPasswordDoneViewSet,
+    basename='success_reset'
+)
+users_router.register(
+    'reset-password/<str:uidb64>/<str:token>/failed',
+    ResetPasswordFailedViewSet,
+    basename='failed_reset'
+)
+
+urlpatterns = users_router.urls

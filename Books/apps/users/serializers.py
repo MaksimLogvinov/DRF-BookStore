@@ -44,11 +44,11 @@ class UserRegisterSerializer(serializers.Serializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     new_password1 = serializers.CharField(
-        label=gettext("Новый пароль"),
+        label=gettext('Новый пароль'),
         allow_null=False, allow_blank=False
     )
     new_password2 = serializers.CharField(
-        label=gettext("Подтверждение нового пароля"),
+        label=gettext('Подтверждение нового пароля'),
         allow_null=False, allow_blank=False
     )
 
@@ -78,3 +78,13 @@ class SaveUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['first_name', 'last_name']
+
+
+class DeleteUserSerializer(serializers.Serializer):
+    accept = serializers.BooleanField(default=False)
+
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name']

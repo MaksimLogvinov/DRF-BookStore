@@ -38,15 +38,15 @@ def create_order(serializer, cart, user):
             ordit_order_id=order,
             ordit_product=item['product'],
             ordit_price=item['price'],
-            ordit_quantity=item["quantity"],
+            ordit_quantity=item['quantity'],
         ))
-        item["product"].prod_quantity_on_stock -= item["quantity"]
-        update_quantity_prod.append(item["product"])
+        item['product'].prod_quantity_on_stock -= item['quantity']
+        update_quantity_prod.append(item['product'])
 
     OrderItem.objects.bulk_create(order_items)
     Products.objects.bulk_update(
         update_quantity_prod,
-        fields=["prod_quantity_on_stock"]
+        fields=['prod_quantity_on_stock']
     )
     cart.clear()
     return order

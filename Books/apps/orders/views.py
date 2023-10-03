@@ -1,6 +1,6 @@
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from apps.cart.cart import Cart
 from apps.cart.services import get_products
@@ -9,14 +9,14 @@ from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import payment_order
 
 
-class CreateOrderView(APIView):
+class CreateOrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderCreateSerializer
     queryset = Orders.objects.all()
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         return Response(data={
-            "cart": get_products(Cart(request)),
+            'cart': get_products(Cart(request)),
             'result': 'Создание заказа'}
         )
 
@@ -29,14 +29,14 @@ class CreateOrderView(APIView):
         return result
 
 
-class OrderSuccessView(APIView):
+class OrderSuccessViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         return Response(data={'title': 'Вы успешно оплатили заказ'})
 
 
-class OrderFailedView(APIView):
+class OrderFailedViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):

@@ -1,10 +1,9 @@
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
-from rest_framework.generics import RetrieveAPIView, ListAPIView, CreateAPIView, \
-    get_object_or_404
+from rest_framework import viewsets
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.views import APIView
 
 from apps.cart.cart import Cart
 from apps.cart.serializer import CartAddProductSerializer, DiscountSerializer, \
@@ -17,13 +16,13 @@ from apps.orders.services import create_order
 from apps.products.models import Products
 
 
-class CartAdd(RetrieveAPIView):
+class CartAddViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = CartAddProductSerializer
     lookup_field = 'pk'
 
     def post(self, request, *args, **kwargs):
-        add_product_in_cart(
+        add_product(
             Cart(request),
             CartAddProductSerializer(data=request.POST),
             kwargs['product_id']
@@ -37,15 +36,15 @@ class CartAdd(RetrieveAPIView):
         return Response(objects)
 
 
-class CartRemove(RetrieveAPIView):
+class CartRemoveViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = CartDeleteProductSerializer
     lookup_field = 'pk'
 
     def get(self, request, *args, **kwargs):
-        delete_product_from_cart(Cart(request), kwargs['product_id'])
+        delete_product(Cart(request), kwargs['product_id'])
         return HttpResponseRedirect(
-            redirect_to=reverse("cart:cart_detail", request=request)
+            redirect_to=reverse('cart:cart_detail', request=request)
         )
 
     def retrieve(self, request, pk=None, *args, **kwargs):
@@ -53,29 +52,29 @@ class CartRemove(RetrieveAPIView):
         return Response(objects)
 
 
-class CartDetail(APIView):
+class CartDetailViewSet(viewsets.ViewSet):
     def get(self, request):
-        return Response(data={"cart": get_products_in_cart(Cart(request))})
+        return Response(data={'cart': get_products(Cart(request))})
 
     def post(self, request):
         cart = update_quantity(Cart(self.request))
         discount = DiscountSerializer
         content = {
-            'cart': get_products_in_cart(cart),
+            'cart': get_products(cart),
             'discount': discount,
-            'title': "Корзина"
+            'title': 'Корзина'
         }
         return Response(data=content)
 
 
-class HistoryOrder(ListAPIView):
+class HistoryOrderViewSet(viewsets.ViewSet):
     serializer_class = HistoryOrderSerializer
 
     def get_queryset(self):
         return Orders.objects.filter(ord_user_id=self.request.user)
 
 
-class OrderReserveView(CreateAPIView):
+class OrderReserveViewSet(viewsets.ModelViewSet):
     queryset = Orders.objects.all()
     serializer_class = OrderReverseSerializer
 
@@ -84,10 +83,10 @@ class OrderReserveView(CreateAPIView):
         reserve = ReservationProduct.objects.filter(
             res_user_id=self.request.user
         )
-        page_number = self.request.GET.get("page", 1)
+        page_number = self.request.GET.get('page', 1)
         paginator = Paginator(reserve, 10)
-        content["posts"] = paginator.page(page_number)
-        content["reserve"] = paginator.get_page(page_number)
+        content['posts'] = paginator.page(page_number)
+        content['reserve'] = paginator.get_page(page_number)
         return Response(data=content)
 
     def post(self, request, *args, **kwargs):
