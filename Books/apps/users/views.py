@@ -63,6 +63,7 @@ class UserConfirmEmailViewSet(viewsets.ViewSet):
 
 class ResetPasswordViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
+    serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
