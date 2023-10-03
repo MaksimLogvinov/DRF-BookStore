@@ -3,7 +3,7 @@
 ## Как запустить проект
 #### 1. Клонировать проект: <br>
 ```git clone https://github.com/MaksimLogvinov/DRF-BookStore.git```
-#### 2. Заполнить .env файл. Пример заполненного файла - [.env-example](https://github.com/MaksimLogvinov/DRF-BookStore/tree/main/Books/.env-example)
+#### 2. Заполнить .env файл. Пример заполненного файла - [.env-example](https://github.com/MaksimLogvinov/DRF-BookStore/blob/develop/.env-example)
 #### 3. Настроить smtp (рассылка сообщений на почту). [Помощь](https://firstvds.ru/technology/yandex-mail-for-domain)
 #### 4. Создать миграции: <br>
 ```python manage.py makemigrations ```
