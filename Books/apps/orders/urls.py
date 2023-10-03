@@ -1,15 +1,22 @@
-from django.urls import path
+from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
 from apps.orders.views import (
-    CreateOrderView, OrderSuccessView, OrderFailedView
+    CreateOrderViewSet, OrderSuccessViewSet, OrderFailedViewSet
 )
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Orders API')
 
-urlpatterns = [
-    path(r'^$', schema_view),
-    path('create/', CreateOrderView.as_view()),
-    path('create/success', OrderSuccessView.as_view()),
-    path('create/failed', OrderFailedView.as_view()),
-]
+orders_router = routers.SimpleRouter()
+orders_router.register(r'create', CreateOrderViewSet, basename='create_order')
+orders_router.register(
+    r'create/success',
+    OrderSuccessViewSet,
+    basename='create_success'
+)
+orders_router.register(
+    r'create/failed',
+    OrderFailedViewSet,
+    basename='create_failed'
+)
+urlpatterns = orders_router.urls

@@ -12,8 +12,8 @@ def add_product(cart, serializer, product_id):
         cd = serializer.data
         cart.add(
             product=product,
-            quantity=cd["quantity"],
-            update_quantity=cd["update"]
+            quantity=cd['quantity'],
+            update_quantity=cd['update']
         )
 
 
@@ -24,8 +24,8 @@ def delete_product(cart, product_id):
 
 def update_quantity(cart):
     for item in cart:
-        item["update_quantity_form"] = CartAddProductSerializer(
-            initial={"quantity": item["quantity"], "update": True}
+        item['update_quantity_form'] = CartAddProductSerializer(
+            initial={'quantity': item['quantity'], 'update': True}
         )
     return cart
 
@@ -33,15 +33,15 @@ def update_quantity(cart):
 def history_orders(context, user_id):
     orders = Orders.objects.filter(
         ord_user_id=user_id).order_by(
-        "-ord_date_created"
+        '-ord_date_created'
     ).values()
-    context.update({"title": "История заказов", 'orders': orders})
+    context.update({'title': 'История заказов', 'orders': orders})
     return context
 
 
 def get_products(cart):
     products = {}
-    for i in cart:
-        products.update(i)
-        products['product'] = ProductSerializer(i['product']).data
+    for item in cart:
+        products.update(item)
+        products['product'] = ProductSerializer(item['product']).data
     return products

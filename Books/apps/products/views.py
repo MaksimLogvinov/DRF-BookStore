@@ -1,11 +1,11 @@
-from rest_framework.generics import RetrieveAPIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 
-from apps.products.models import Products
 from apps.cart.serializer import CartAddProductSerializer
+from apps.products.models import Products
 
 
-class ProductInfoView(RetrieveAPIView):
+class ProductInfoViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = CartAddProductSerializer
 

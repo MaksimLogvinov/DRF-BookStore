@@ -1,34 +1,10 @@
-from django.urls import path, include
+from rest_framework import routers
 from rest_framework_swagger.views import get_swagger_view
 
-from apps.main.views import HomePage
+from apps.main.views import HomePageViewSet
 
-schema_view = get_swagger_view(title='Pastebin API')
+schema_view = get_swagger_view(title='Main API')
 
-urlpatterns = [
-    path(r'swagger/', schema_view),
-    path('',
-         HomePage.as_view(),
-         name='home_page'
-         ),
-    path(
-        'catalog/',
-        include('apps.categories.urls')
-    ),
-    path(
-        'cart/',
-        include(('apps.cart.urls', 'apps.cart'), namespace='cart'),
-    ),
-    path(
-        'order/',
-        include('apps.orders.urls'),
-    ),
-    path(
-        'user/',
-        include('apps.users.urls')
-    ),
-    path(
-        'product/',
-        include('apps.products.urls')
-    )
-]
+main_router = routers.DefaultRouter()
+main_router.register(r'', HomePageViewSet, basename='home_page')
+urlpatterns = main_router.urls

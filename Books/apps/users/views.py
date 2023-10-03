@@ -4,22 +4,21 @@ from django.contrib.auth import get_user_model, login
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponseRedirect
 from django.utils.http import urlsafe_base64_decode
-from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework.views import APIView
 
 from apps.users.models import CustomUser
 from apps.users.serializers import UserRegisterSerializer, \
-    ChangePasswordSerializer, SaveUserSerializer, SaveProfileSerializer
+    ChangePasswordSerializer, SaveUserSerializer, SaveProfileSerializer, \
+    DeleteUserSerializer, ResetPasswordSerializer
 from apps.users.services import send_message
 
 User = get_user_model()
 
 
-class RegisterUserView(CreateAPIView):
+class RegisterUserViewSet(viewsets.ModelViewSet):
     serializer_class = UserRegisterSerializer
     queryset = CustomUser.objects.all()
 
@@ -41,7 +40,7 @@ class RegisterUserView(CreateAPIView):
         return Response(data)
 
 
-class UserConfirmEmailView(APIView):
+class UserConfirmEmailViewSet(viewsets.ViewSet):
     def get(self, request, uidb64, token):
         try:
             uid = urlsafe_base64_decode(uidb64)
@@ -62,8 +61,9 @@ class UserConfirmEmailView(APIView):
             )
 
 
-class ResetPasswordView(APIView):
+class ResetPasswordViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
+    serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
@@ -77,7 +77,7 @@ class ResetPasswordView(APIView):
         return Response(content, status=status.HTTP_200_OK)
 
 
-class EmailResetPasswordView(APIView):
+class EmailResetPasswordViewSet(viewsets.ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, uidb64, token):
@@ -95,9 +95,10 @@ class EmailResetPasswordView(APIView):
             return HttpResponseRedirect(redirect_to='failed/', kwargs=content)
 
 
-class ResetPasswordDone(CreateAPIView):
+class ResetPasswordDoneViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
     serializer_class = ChangePasswordSerializer
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
@@ -109,7 +110,16 @@ class ResetPasswordDone(CreateAPIView):
         return Response(data={'result': 'Ваш пароль был успешно изменён'})
 
 
-class ProfileUserView(CreateAPIView):
+class ResetPasswordFailedViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = ChangePasswordSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get(self):
+        return Response(data={'result': 'Ошибка сброса пароля'})
+
+
+class ProfileUserViewSet(viewsets.ModelViewSet):
     serializer_class = SaveUserSerializer
     permission_classes = (IsAuthenticated, )
     queryset = CustomUser.objects.all()
@@ -127,7 +137,7 @@ class ProfileUserView(CreateAPIView):
         return Response(data={'result': 'Данные успешно обновлены'})
 
 
-class SecurityUserView(APIView):
+class SecurityUserViewSet(viewsets.ModelViewSet):
     serializer_class = SaveProfileSerializer
     queryset = CustomUser.objects.all()
     permission_classes = (IsAuthenticated, )
@@ -146,7 +156,10 @@ class SecurityUserView(APIView):
         return Response(data={'result': 'Вы успешно изменили данные'})
 
 
-class DeleteUser(APIView):
+class DeleteUserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = DeleteUserSerializer
+
     def post(self, request):
         request.user.delete()
         return HttpResponseRedirect(

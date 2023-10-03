@@ -1,6 +1,6 @@
 import django_filters.rest_framework
 from rest_framework import filters
-from rest_framework.generics import ListAPIView
+from rest_framework import viewsets
 from rest_framework.response import Response
 
 from apps.categories.services import (
@@ -12,7 +12,7 @@ from apps.products.serializer import ProductSerializer, MagazineSerializer, \
     TextBookSerializer, BookSerializer
 
 
-class SearchResultView(ListAPIView):
+class SearchResultViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['prod_title', 'slug', 'prod_description']
@@ -33,7 +33,7 @@ class SearchResultView(ListAPIView):
         return Response(data={'title': 'Поиск товара', 'content': content})
 
 
-class MagazineCatalogView(ListAPIView):
+class MagazineCatalogViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = [
@@ -53,7 +53,7 @@ class MagazineCatalogView(ListAPIView):
         )
 
 
-class ShowBooksView(ListAPIView):
+class ShowBooksViewSet(viewsets.ModelViewSet):
     serializer_class = BookSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = [
@@ -69,7 +69,7 @@ class ShowBooksView(ListAPIView):
         return Response(data={'content': self.queryset, 'title': 'Книги'})
 
 
-class ShowMagazinesView(ListAPIView):
+class ShowMagazinesViewSet(viewsets.ModelViewSet):
     serializer_class = MagazineSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_fields = [
@@ -85,7 +85,7 @@ class ShowMagazinesView(ListAPIView):
         return Response(data={'content': self.queryset, 'title': 'Журналы'})
 
 
-class ShowTextbooksView(ListAPIView):
+class ShowTextbooksViewSet(viewsets.ModelViewSet):
     queryset = TextBooks.objects.all()
     serializer_class = TextBookSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]

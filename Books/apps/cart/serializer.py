@@ -6,7 +6,7 @@ from apps.orders.models import ReservationProduct, Orders, OrderItem
 class CartAddProductSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(
         min_value=1,
-        label="Кол-во",
+        label='Кол-во',
         initial=1,
     )
     update = serializers.BooleanField(
@@ -18,7 +18,7 @@ class CartAddProductSerializer(serializers.Serializer):
 class CartDeleteProductSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(
         allow_null=True,
-        label="Номер товара",
+        label='Номер товара',
     )
 
 

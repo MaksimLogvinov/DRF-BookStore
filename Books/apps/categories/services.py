@@ -1,7 +1,6 @@
 from datetime import date
 
 from django.db.models import Q
-from django.template.defaultfilters import register
 
 
 def categories(model, user=None, data=None):
@@ -19,8 +18,3 @@ def categories(model, user=None, data=None):
             Q(prod_title__icontains=data) or Q(slug__icontains=data)
         )
     return prod
-
-
-@register.filter
-def rating(dict_data, key):
-    return dict_data[key]
