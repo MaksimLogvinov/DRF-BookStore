@@ -1,70 +1,58 @@
+import os
+
 from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from apps.cart.cart import Cart
-from apps.cart.serializer import CartAddProductSerializer, DiscountSerializer, \
+from apps.cart.serializer import CartAddProductSerializer, \
     OrderReverseSerializer, CartDeleteProductSerializer, HistoryOrderSerializer
-from apps.cart.services import delete_product, update_quantity, \
-    add_product, get_products
+from apps.cart.services import add_product, get_products
 from apps.orders.models import Orders, ReservationProduct
 from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import create_order
 from apps.products.models import Products
+from apps.products.serializer import ProductSerializer
 
 
 class CartAddViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = CartAddProductSerializer
+    http_method_names = ['get','post']
     lookup_field = 'pk'
 
     def post(self, request, *args, **kwargs):
         add_product(
             Cart(request),
             CartAddProductSerializer(data=request.POST),
-            kwargs['product_id']
+            kwargs['pk']
         )
-        return HttpResponseRedirect(
-            redirect_to=reverse("cart:cart_detail", request=request)
-        )
+        return HttpResponseRedirect(f'http://{os.environ.get("LOCALE_URL")}/cart/')
 
     def retrieve(self, request, pk=None, *args, **kwargs):
-        objects = get_object_or_404(Products, id=pk)
-        return Response(objects)
+        return Response(ProductSerializer(self.get_object()).data)
 
 
 class CartRemoveViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
+    http_method_names = ['get']
     serializer_class = CartDeleteProductSerializer
     lookup_field = 'pk'
 
-    def get(self, request, *args, **kwargs):
-        delete_product(Cart(request), kwargs['product_id'])
-        return HttpResponseRedirect(
-            redirect_to=reverse('cart:cart_detail', request=request)
-        )
-
-    def retrieve(self, request, pk=None, *args, **kwargs):
-        objects = get_object_or_404(Products, id=pk)
-        return Response(objects)
+    def retrieve(self, request, *args, **kwargs):
+        product = self.get_object()
+        cart = Cart(request)
+        cart.remove(product)
+        return HttpResponseRedirect(f'http://{os.environ.get("LOCALE_URL")}/cart/')
 
 
 class CartDetailViewSet(viewsets.ViewSet):
-    def get(self, request):
-        return Response(data={'cart': get_products(Cart(request))})
+    http_method_names = ['get']
 
-    def post(self, request):
-        cart = update_quantity(Cart(self.request))
-        discount = DiscountSerializer
-        content = {
-            'cart': get_products(cart),
-            'discount': discount,
-            'title': 'Корзина'
-        }
-        return Response(data=content)
+    def list(self, request):
+        return Response(data={'cart': get_products(Cart(request))})
 
 
 class HistoryOrderViewSet(viewsets.ViewSet):
@@ -72,6 +60,12 @@ class HistoryOrderViewSet(viewsets.ViewSet):
 
     def get_queryset(self):
         return Orders.objects.filter(ord_user_id=self.request.user)
+
+    def list(self, request):
+        return Response(data={'history': self.get_queryset()})
+
+    def retrieve(self, request, *args, **kwargs):
+        return Response(data=self.get_queryset().filter(pk=kwargs['pk']))
 
 
 class OrderReserveViewSet(viewsets.ModelViewSet):

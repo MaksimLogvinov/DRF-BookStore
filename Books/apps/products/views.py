@@ -1,17 +1,19 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 
-from apps.cart.serializer import CartAddProductSerializer
 from apps.products.models import Products
+from apps.users.serializers import ProductInfoSerializer
 
 
-class ProductInfoViewSet(viewsets.ModelViewSet):
-    queryset = Products.objects.all()
-    serializer_class = CartAddProductSerializer
+class ProductInfoViewSet(viewsets.GenericViewSet):
+    queryset = (
+        Products.objects.all().order_by('prod_title').
+        filter(prod_quantity_on_stock__gt=0))
+    serializer_class = ProductInfoSerializer
+    http_method_names = ['get', 'retrieve']
 
-    def get(self, request, *args, **kwargs):
-        product = Products.objects.filter(slug=kwargs['prod_slug'])
+    def retrieve(self, request, pk=None):
         return Response(data={
             'result': 'Информация о товаре',
-            'product': product.values()}
+            'product': self.serializer_class(self.get_object()).data}
         )

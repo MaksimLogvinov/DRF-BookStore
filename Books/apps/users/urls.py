@@ -1,15 +1,43 @@
+from django.urls import path
 from rest_framework import routers
-from rest_framework_swagger.views import get_swagger_view
 
 from apps.users.views import (
-    RegisterUserViewSet, UserConfirmEmailViewSet, EmailResetPasswordViewSet,
-    ResetPasswordViewSet, ResetPasswordDoneViewSet, ProfileUserViewSet,
-    SecurityUserViewSet, DeleteUserViewSet, ResetPasswordFailedViewSet
+    RegisterUserViewSet, EmailResetPasswordView,
+    ResetPasswordView, ResetPasswordDoneView, ProfileUserViewSet,
+    SecurityUserViewSet, DeleteUserViewSet, ResetPasswordFailedView,
+    UserConfirmEmailView,
 )
 
-schema_view = get_swagger_view(title='Users API')
+urlpatterns_users = [
+    path(
+        'reset-password/',
+        ResetPasswordView.as_view(),
+        name='password_email'
+    ),
+    path(
+        'reset-password/<str:uidb64>/<str:token>',
+        EmailResetPasswordView.as_view(),
+        name='password_email'
+    ),
+    path(
+        'reset-password/<str:uidb64>/done/',
+        ResetPasswordDoneView.as_view(),
+        name='success_reset'
+    ),
+    path(
+        'reset-password/<str:uidb64>/failed/',
+        ResetPasswordFailedView.as_view(),
+        name='failed_reset'
+    ),
+    path(
+        'confirm-email/<str:uidb64>/<str:token>',
+        UserConfirmEmailView.as_view(),
+        name='confirm_email'
+    )
+]
 
-users_router = routers.SimpleRouter()
+
+users_router = routers.DefaultRouter()
 users_router.register(
     r'register',
     RegisterUserViewSet,
@@ -28,32 +56,6 @@ users_router.register(
 users_router.register(
     r'delete',
     DeleteUserViewSet,
-    basename='user_delete'
-)
-users_router.register(
-    r'confirm-email/<str:uidb64>/<str:token>',
-    UserConfirmEmailViewSet,
-    basename='user_confirm_email'
-)
-users_router.register(
-    r'reset-password',
-    ResetPasswordViewSet,
-    basename='reset_password'
-)
-users_router.register(
-    r'reset-password/<str:uidb64>/<str:token>',
-    EmailResetPasswordViewSet,
-    basename='validation_reset_password'
-)
-users_router.register(
-    r'reset-password/<str:uidb64>/<str:token>/done',
-    ResetPasswordDoneViewSet,
-    basename='success_reset'
-)
-users_router.register(
-    'reset-password/<str:uidb64>/<str:token>/failed',
-    ResetPasswordFailedViewSet,
-    basename='failed_reset'
 )
 
-urlpatterns = users_router.urls
+urlpatterns_users += users_router.urls

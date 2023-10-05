@@ -1,3 +1,4 @@
+import os
 from gettext import gettext
 
 from django.contrib.auth import get_user_model, login
@@ -7,20 +8,24 @@ from django.utils.http import urlsafe_base64_decode
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
+from rest_framework.views import APIView
 
 from apps.users.models import CustomUser
-from apps.users.serializers import UserRegisterSerializer, \
-    ChangePasswordSerializer, SaveUserSerializer, SaveProfileSerializer, \
-    DeleteUserSerializer, ResetPasswordSerializer
+from apps.users.serializers import (
+    UserRegisterSerializer, ChangePasswordSerializer, SaveUserSerializer,
+    SaveProfileSerializer
+)
 from apps.users.services import send_message
 
 User = get_user_model()
 
 
-class RegisterUserViewSet(viewsets.ModelViewSet):
+class RegisterUserViewSet(viewsets.ViewSet):
     serializer_class = UserRegisterSerializer
     queryset = CustomUser.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        return Response()
 
     def post(self, request, *args, **kwargs):
         serializer = UserRegisterSerializer(data=request.data)
@@ -28,7 +33,7 @@ class RegisterUserViewSet(viewsets.ModelViewSet):
             user = serializer.save()
             send_message(
                 user=user,
-                url_name='confirm_email',
+                url_name='/user/confirm-email',
                 subject=gettext('Подтвердите свой электронный адрес'),
                 message=gettext('Пожалуйста, перейдите по следующей ссылке, '
                                 'чтобы подтвердить свой адрес электронный'
@@ -40,7 +45,7 @@ class RegisterUserViewSet(viewsets.ModelViewSet):
         return Response(data)
 
 
-class UserConfirmEmailViewSet(viewsets.ViewSet):
+class UserConfirmEmailView(APIView):
     def get(self, request, uidb64, token):
         try:
             uid = urlsafe_base64_decode(uidb64)
@@ -61,23 +66,25 @@ class UserConfirmEmailViewSet(viewsets.ViewSet):
             )
 
 
-class ResetPasswordViewSet(viewsets.ModelViewSet):
+class ResetPasswordView(APIView):
     queryset = CustomUser.objects.all()
-    serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)
 
     def get(self, request):
+        return Response()
+
+    def post(self, request):
         content = {'text': gettext('Запрос за сброс пароля отправлен')}
         send_message(
             user=self.request.user,
-            url_name='password_email',
+            url_name='/user/reset-password',
             subject=gettext('Ваш пароль пытаются сменить'),
             message=gettext('Перейдите по следующей ссылке, '
                             'чтобы сменить пароль:'))
         return Response(content, status=status.HTTP_200_OK)
 
 
-class EmailResetPasswordViewSet(viewsets.ViewSet):
+class EmailResetPasswordView(APIView):
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, uidb64, token):
@@ -88,17 +95,19 @@ class EmailResetPasswordViewSet(viewsets.ViewSet):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
-            content = {'result': 'Вы подтвердили сброс пароля'}
-            return HttpResponseRedirect(redirect_to='done/', kwargs=content)
+            url = 'failed/'
         else:
-            content = {'result': 'Ваш пароль не был сменён, повторите попытку'}
-            return HttpResponseRedirect(redirect_to='failed/', kwargs=content)
+            url = 'done/'
+        return HttpResponseRedirect(redirect_to=url)
 
 
-class ResetPasswordDoneViewSet(viewsets.ModelViewSet):
+class ResetPasswordDoneView(APIView):
     queryset = User.objects.all()
     serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)
+
+    def get(self, request, uidb64):
+        return Response(data={'result': 'Смена пароля'})
 
     def post(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
@@ -110,21 +119,20 @@ class ResetPasswordDoneViewSet(viewsets.ModelViewSet):
         return Response(data={'result': 'Ваш пароль был успешно изменён'})
 
 
-class ResetPasswordFailedViewSet(viewsets.ModelViewSet):
+class ResetPasswordFailedView(APIView):
     queryset = User.objects.all()
-    serializer_class = ChangePasswordSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get(self):
+    def get(self, request, uidb64):
         return Response(data={'result': 'Ошибка сброса пароля'})
 
 
-class ProfileUserViewSet(viewsets.ModelViewSet):
+class ProfileUserViewSet(viewsets.ViewSet):
     serializer_class = SaveUserSerializer
     permission_classes = (IsAuthenticated, )
     queryset = CustomUser.objects.all()
 
-    def get(self, request):
+    def list(self, request, *args, **kwargs):
         return Response(data={'result': 'Информация о пользователе'})
 
     def post(self, request, *args, **kwargs):
@@ -137,13 +145,13 @@ class ProfileUserViewSet(viewsets.ModelViewSet):
         return Response(data={'result': 'Данные успешно обновлены'})
 
 
-class SecurityUserViewSet(viewsets.ModelViewSet):
+class SecurityUserViewSet(viewsets.ViewSet):
     serializer_class = SaveProfileSerializer
     queryset = CustomUser.objects.all()
     permission_classes = (IsAuthenticated, )
 
-    def get(self, request):
-        data = {'result': 'Функционал пользователя'}
+    def list(self, request, *args, **kwargs):
+        data = {'result': 'Расширенная информация о пользователе'}
         return Response(data)
 
     def post(self, request):
@@ -156,13 +164,14 @@ class SecurityUserViewSet(viewsets.ModelViewSet):
         return Response(data={'result': 'Вы успешно изменили данные'})
 
 
-class DeleteUserViewSet(viewsets.ModelViewSet):
+class DeleteUserViewSet(viewsets.ViewSet):
     queryset = User.objects.all()
-    serializer_class = DeleteUserSerializer
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
-        request.user.delete()
-        return HttpResponseRedirect(
-            redirect_to=reverse('home_page', request=request)
-        )
+    def delete(self, request, *args, **kwargs):
+        self.request.user.delete()
+        return HttpResponseRedirect(f'http://{os.environ.get("LOCALE_URL")}/')
+
+    def list(self, request):
+        return Response(data={'result': 'Удаление пользователя'})
 
