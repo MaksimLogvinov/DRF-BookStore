@@ -6,7 +6,7 @@ from apps.main.urls import main_router
 from apps.categories.urls import categories_router
 from apps.cart.urls import cart_router
 from apps.orders.urls import orders_router
-from apps.users.urls import users_router
+from apps.users.urls import urlpatterns_users
 from apps.products.urls import products_router
 
 schema_view = get_swagger_view(title='BookStore API')
@@ -22,6 +22,6 @@ urlpatterns = [
         include((cart_router.urls, 'apps.cart'), namespace='cart')
     ),
     path(r'order/', include(orders_router.urls)),
-    path(r'user/', include(users_router.urls)),
+    path(r'user/', include(urlpatterns_users)),
     path(r'product/', include(products_router.urls))
 ]

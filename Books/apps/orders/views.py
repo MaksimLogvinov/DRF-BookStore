@@ -6,21 +6,25 @@ from apps.cart.cart import Cart
 from apps.cart.services import get_products
 from apps.orders.models import Orders
 from apps.orders.serializer import OrderCreateSerializer
-from apps.orders.services import payment_order
+from apps.orders.services import payment_order, show_discount
 
 
 class CreateOrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderCreateSerializer
-    queryset = Orders.objects.all()
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
-        return Response(data={
-            'cart': get_products(Cart(request)),
-            'result': 'Создание заказа'}
-        )
+    def get_queryset(self):
+        queryset = Orders.objects.all().filter(ord_user_id=self.request.user)
+        return queryset
 
-    def post(self, request):
+    def list(self, request, *args, **kwargs):
+        return Response(data={
+            'result': 'Создание заказа',
+            'cart': get_products(Cart(request)),
+            'discount': show_discount(Cart(request))
+        })
+
+    def create(self, request, *args, **kwargs):
         result = payment_order(
             Cart(request),
             OrderCreateSerializer(data=request.POST),
@@ -30,14 +34,16 @@ class CreateOrderViewSet(viewsets.ModelViewSet):
 
 
 class OrderSuccessViewSet(viewsets.ViewSet):
+    queryset = Orders.objects.all()
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def list(self, request):
         return Response(data={'title': 'Вы успешно оплатили заказ'})
 
 
 class OrderFailedViewSet(viewsets.ViewSet):
+    queryset = Orders.objects.all()
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def list(self, request):
         return Response(data={'title': 'Оформление заказа отклонено'})

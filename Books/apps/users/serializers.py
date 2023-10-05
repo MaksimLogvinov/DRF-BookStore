@@ -1,6 +1,7 @@
 from django.utils.translation import gettext
 from rest_framework import serializers
 
+from apps.products.models import Products
 from apps.users.models import CustomUser, Profile
 
 
@@ -80,11 +81,14 @@ class SaveUserSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name']
 
 
-class DeleteUserSerializer(serializers.Serializer):
-    accept = serializers.BooleanField(default=False)
-
-
 class ResetPasswordSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['first_name']
+
+
+class ProductInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Products
+        fields = '__all__'
+        lookup_field = 'slug'

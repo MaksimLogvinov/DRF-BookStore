@@ -8,14 +8,19 @@ from apps.cart.views import (
 schema_view = get_swagger_view(title='Cart API')
 
 cart_router = routers.SimpleRouter()
-cart_router.register(r'', CartDetailViewSet, basename='cart_detail')
+
 cart_router.register(
-    r'add/<int:product_id>',
+    r'',
+    CartDetailViewSet,
+    basename='cart_detail'
+)
+cart_router.register(
+    r'add',
     CartAddViewSet,
     basename='cart_add'
 )
 cart_router.register(
-    r'remove/<int:product_id>',
+    r'remove',
     CartRemoveViewSet,
     basename='cart_remove'
 )

@@ -18,11 +18,14 @@ def payment_order(cart, serializer, user):
     )
 
 
-def get_cashback(user, cart):
+def show_discount(cart):
     cashback_percent = int(os.environ.get('cashback_percent')) / 100
-    user.user_profile.balance += (
-            cart.get_total_price() * Decimal(cashback_percent)
-    )
+    cashback = cart.get_total_price() * Decimal(cashback_percent)
+    return cashback
+
+
+def get_cashback(user, cart):
+    user.user_profile.balance += show_discount(cart)
     user.save()
 
 
