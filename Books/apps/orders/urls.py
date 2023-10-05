@@ -7,8 +7,7 @@ from apps.orders.views import (
 
 schema_view = get_swagger_view(title='Orders API')
 
-orders_router = routers.SimpleRouter()
-orders_router.register(r'create', CreateOrderViewSet, basename='create_order')
+orders_router = routers.DefaultRouter()
 orders_router.register(
     r'create/success',
     OrderSuccessViewSet,
@@ -19,4 +18,10 @@ orders_router.register(
     OrderFailedViewSet,
     basename='create_failed'
 )
+orders_router.register(
+    r'create',
+    CreateOrderViewSet,
+    basename='create_order'
+)
+
 urlpatterns = orders_router.urls

@@ -17,11 +17,6 @@ def add_product(cart, serializer, product_id):
         )
 
 
-def delete_product(cart, product_id):
-    product = get_object_or_404(Products, id=product_id)
-    cart.remove(product)
-
-
 def update_quantity(cart):
     for item in cart:
         item['update_quantity_form'] = CartAddProductSerializer(

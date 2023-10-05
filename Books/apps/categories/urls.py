@@ -10,7 +10,6 @@ schema_view = get_swagger_view(title='Categories API')
 
 
 categories_router = routers.SimpleRouter()
-categories_router.register(r'', MagazineCatalogViewSet, basename='catalog')
 categories_router.register(r'books', ShowBooksViewSet, basename='books')
 categories_router.register(
     r'magazines',
@@ -27,6 +26,6 @@ categories_router.register(
     SearchResultViewSet,
     basename='search'
 )
+categories_router.register(r'', MagazineCatalogViewSet, basename='catalog')
+
 urlpatterns = categories_router.urls
-
-
