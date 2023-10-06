@@ -1,18 +1,14 @@
 import os
 
-from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 
 from apps.cart.cart import Cart
 from apps.cart.serializer import CartAddProductSerializer, \
     OrderReverseSerializer, CartDeleteProductSerializer, HistoryOrderSerializer
-from apps.cart.services import add_product, get_products
+from apps.cart.services import add_product, get_products, order_reserve
 from apps.orders.models import Orders, ReservationProduct
-from apps.orders.serializer import OrderCreateSerializer
-from apps.orders.services import create_order
 from apps.products.models import Products
 from apps.products.serializer import ProductSerializer
 
@@ -73,34 +69,13 @@ class OrderReserveViewSet(viewsets.ModelViewSet):
     serializer_class = OrderReverseSerializer
 
     def get(self):
-        content = {'title': 'Бронь заказа'}
         reserve = ReservationProduct.objects.filter(
             res_user_id=self.request.user
         )
-        page_number = self.request.GET.get('page', 1)
-        paginator = Paginator(reserve, 10)
-        content['posts'] = paginator.page(page_number)
-        content['reserve'] = paginator.get_page(page_number)
+        content = {'title': 'Бронь заказа', 'reserve': reserve}
         return Response(data=content)
 
     def post(self, request, *args, **kwargs):
         serializer = OrderReverseSerializer(data=request.data)
-        if serializer.is_valid():
-            order = create_order(
-                OrderCreateSerializer({
-                    'ord_description': '-',
-                    'ord_address_delivery': '-',
-                    'ord_paid': '-'
-                }),
-                Cart(request),
-                request.user
-            )
-
-            ReservationProduct.objects.create(
-                res_order_id=order,
-                res_user_id=request.user,
-                res_time_out=serializer.data['res_time_out']
-            )
-            return HttpResponseRedirect(
-                redirect_to=reverse('cart:order_reserve')
-            )
+        data = order_reserve(serializer, Cart(request), request.user)
+        return HttpResponseRedirect(data=data)
