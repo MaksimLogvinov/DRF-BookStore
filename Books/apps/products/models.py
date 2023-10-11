@@ -105,6 +105,8 @@ class GenresBooks(models.Model):
         max_length=500
     )
 
+    objects = models.Manager()
+
     def __str__(self):
         return self.genre_name
 

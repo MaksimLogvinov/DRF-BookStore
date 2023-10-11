@@ -2,11 +2,13 @@ import os
 
 from django.http import HttpResponseRedirect
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.cart.cart import Cart
 from apps.cart.serializer import CartAddProductSerializer, \
-    OrderReverseSerializer, CartDeleteProductSerializer, HistoryOrderSerializer
+    OrderReserveSerializer, CartDeleteProductSerializer, OrderSerializer, \
+    ShowReserveSerializer
 from apps.cart.services import add_product, get_products, order_reserve
 from apps.orders.models import Orders, ReservationProduct
 from apps.products.models import Products
@@ -16,7 +18,8 @@ from apps.products.serializer import ProductSerializer
 class CartAddViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     serializer_class = CartAddProductSerializer
-    http_method_names = ['get','post']
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get', 'post']
     lookup_field = 'pk'
 
     def post(self, request, *args, **kwargs):
@@ -34,6 +37,7 @@ class CartAddViewSet(viewsets.ModelViewSet):
 class CartRemoveViewSet(viewsets.ModelViewSet):
     queryset = Products.objects.all()
     http_method_names = ['get']
+    permission_classes = (IsAuthenticated,)
     serializer_class = CartDeleteProductSerializer
     lookup_field = 'pk'
 
@@ -46,36 +50,48 @@ class CartRemoveViewSet(viewsets.ModelViewSet):
 
 class CartDetailViewSet(viewsets.ViewSet):
     http_method_names = ['get']
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
-        return Response(data={'cart': get_products(Cart(request))})
+        return Response(data={
+            'cart': get_products(Cart(request)),
+            'results': 'Товары в корзине'}
+        )
 
 
-class HistoryOrderViewSet(viewsets.ViewSet):
-    serializer_class = HistoryOrderSerializer
+class HistoryOrderViewSet(viewsets.ModelViewSet):
+    serializer_class = OrderSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return Orders.objects.filter(ord_user_id=self.request.user)
-
-    def list(self, request):
-        return Response(data={'history': self.get_queryset()})
 
     def retrieve(self, request, *args, **kwargs):
         return Response(data=self.get_queryset().filter(pk=kwargs['pk']))
 
 
 class OrderReserveViewSet(viewsets.ModelViewSet):
-    queryset = Orders.objects.all()
-    serializer_class = OrderReverseSerializer
+    queryset = ReservationProduct.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = OrderReserveSerializer
 
-    def get(self):
-        reserve = ReservationProduct.objects.filter(
-            res_user_id=self.request.user
+    def list(self, request, *args, **kwargs):
+        serializer = ShowReserveSerializer(
+            data=ReservationProduct.objects.filter(res_user_id=request.user),
+            many=True
         )
-        content = {'title': 'Бронь заказа', 'reserve': reserve}
+        serializer.is_valid()
+        content = {
+            'title': 'Бронь заказа',
+            'reserve': serializer.data,
+            'pre_reserve': get_products(Cart(request))
+        }
         return Response(data=content)
 
-    def post(self, request, *args, **kwargs):
-        serializer = OrderReverseSerializer(data=request.data)
+    def create(self, request, *args, **kwargs):
+        serializer = OrderReserveSerializer(data=request.data)
         data = order_reserve(serializer, Cart(request), request.user)
-        return HttpResponseRedirect(data=data)
+        return HttpResponseRedirect(
+            content=data,
+            redirect_to=f'http://{os.environ["LOCALE_URL"]}/cart/'
+        )

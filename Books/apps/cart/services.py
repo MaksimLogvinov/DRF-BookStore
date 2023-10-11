@@ -50,7 +50,9 @@ def order_reserve(serializer, cart, user):
             OrderCreateSerializer({
                 'ord_description': '-',
                 'ord_address_delivery': '-',
-                'ord_paid': '-'
+                'ord_paid': False,
+                'ord_price': cart.get_total_price(),
+                'ord_discount': 0
             }),
             cart,
             user

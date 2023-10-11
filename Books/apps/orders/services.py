@@ -14,7 +14,7 @@ def payment_order(cart, serializer, user):
         return HttpResponseRedirect(redirect_to='success')
     return HttpResponseRedirect(
         redirect_to='failed',
-        kwargs={'errors': serializer.errors}
+        content={'errors': serializer.errors}
     )
 
 

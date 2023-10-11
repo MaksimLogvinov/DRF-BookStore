@@ -22,6 +22,7 @@ class CatalogMixin(viewsets.ModelViewSet):
 class SearchResultViewSet(CatalogMixin):
     serializer_class = ProductSerializer
     filter_backends = [filters.SearchFilter]
+    http_method_names = ['get', 'post']
     search_fields = ['prod_title', 'slug', 'prod_description']
 
     def get_queryset(self):
@@ -30,15 +31,6 @@ class SearchResultViewSet(CatalogMixin):
             user=self.request.user
         )
         return queryset
-
-    def post(self, request):
-        query = request.GET.get('search_prod')
-        content = categories(
-            request.GET,
-            request.user,
-            data=query,
-        )
-        return Response(data={'title': 'Поиск товара', 'content': content})
 
 
 class MagazineCatalogViewSet(CatalogMixin):
@@ -73,9 +65,6 @@ class ShowBooksViewSet(viewsets.ModelViewSet):
         )
         return queryset
 
-    def post(self, request):
-        return Response(data={'content': self.queryset, 'title': 'Книги'})
-
 
 class ShowMagazinesViewSet(viewsets.ModelViewSet):
     serializer_class = MagazineSerializer
@@ -93,9 +82,6 @@ class ShowMagazinesViewSet(viewsets.ModelViewSet):
         )
         return queryset
 
-    def post(self, request):
-        return Response(data={'content': self.queryset, 'title': 'Журналы'})
-
 
 class ShowTextbooksViewSet(viewsets.ModelViewSet):
     serializer_class = TextBookSerializer
@@ -112,6 +98,3 @@ class ShowTextbooksViewSet(viewsets.ModelViewSet):
             user=self.request.user
         )
         return queryset
-
-    def post(self, request):
-        return Response(data={'title': 'Учебники'})

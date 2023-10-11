@@ -24,7 +24,8 @@ class RegisterUserViewSet(viewsets.ViewSet):
     queryset = CustomUser.objects.all()
 
     def list(self, request, *args, **kwargs):
-        return Response()
+        data = dict(title='Страница регистрации')
+        return Response(data=data)
 
     def post(self, request, *args, **kwargs):
         serializer = UserRegisterSerializer(data=request.data)
@@ -118,7 +119,10 @@ class DeleteUserViewSet(viewsets.ViewSet):
 
     def delete(self, request, *args, **kwargs):
         self.request.user.delete()
-        return HttpResponseRedirect(f'http://{os.environ.get("LOCALE_URL")}/')
+        return HttpResponseRedirect(
+            f'http://{os.environ.get("LOCALE_URL")}/',
+            content=dict(result='Успешно удалён пользователь')
+        )
 
     def list(self, request):
         return Response(data={'result': 'Удаление пользователя'})

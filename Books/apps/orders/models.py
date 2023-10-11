@@ -127,6 +127,10 @@ class ReservationProduct(models.Model):
 
     objects = models.Manager()
 
+    class Meta:
+        verbose_name = gettext('Бронирование товаров')
+        verbose_name_plural = gettext('Бронирования товаров')
+
 
 @receiver(post_save, sender=ReservationProduct)
 def purchase_message(sender, instance, **kwargs):
