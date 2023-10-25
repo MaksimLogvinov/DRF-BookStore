@@ -8,7 +8,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-from apps.orders.models import Orders, OrderItem
+from apps.orders.models import Orders, OrderItem, ReservationProduct
 
 
 class OrderItemAdmin(admin.TabularInline):
@@ -66,3 +66,11 @@ class OrderAdmin(admin.ModelAdmin):
                 f' создан - {attribute.created.strftime("%Y-%m-%d %H:%M:%S")}'
             )
         return report_data(qs, text, data)
+
+
+@admin.register(ReservationProduct)
+class AdminReserveProducts(admin.ModelAdmin):
+    list_display = ['id', 'res_order_id', 'res_user_id', 'res_time_created',
+                    'res_time_out']
+    list_display_links = ('id', 'res_user_id')
+    list_filter = ['res_time_out']

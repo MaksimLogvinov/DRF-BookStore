@@ -18,10 +18,10 @@ urlpatterns = [
     path('', include(main_router.urls)),
     path(r'catalog/', include(categories_router.urls)),
     path(
-        r'cart/',
+        'cart/',
         include((cart_router.urls, 'apps.cart'), namespace='cart')
     ),
-    path(r'order/', include(orders_router.urls)),
-    path(r'user/', include(urlpatterns_users)),
-    path(r'product/', include(products_router.urls))
+    path('order/', include(orders_router.urls)),
+    path('user/', include(urlpatterns_users)),
+    path('product/', include(products_router.urls))
 ]

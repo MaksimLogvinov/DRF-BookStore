@@ -30,7 +30,7 @@ urlpatterns_users = [
         name='failed_reset'
     ),
     path(
-        'confirm-email/<str:uidb64>/<str:token>',
+        'confirm-email/<str:uidb64>/<str:token>/',
         UserConfirmEmailView.as_view(),
         name='confirm_email'
     )

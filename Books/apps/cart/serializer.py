@@ -26,11 +26,16 @@ class DiscountSerializer(serializers.Serializer):
     discount_check = serializers.BooleanField(initial=False, required=False)
 
 
-class OrderReverseSerializer(serializers.ModelSerializer):
-
+class ShowReserveSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReservationProduct
-        fields = ('res_time_out',)
+        fields = '__all__'
+
+
+class OrderReserveSerializer(serializers.Serializer):
+    time_out = serializers.DateTimeField(
+        label='До какого хранить',
+    )
 
 
 class HistoryListItemSerializer(serializers.ModelSerializer):
@@ -48,3 +53,9 @@ class HistoryOrderSerializer(serializers.ModelSerializer):
             'id', 'ord_date_created', 'ord_description',
             'ord_address_delivery', 'ord_price', 'ord_discount', 'products'
         )
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Orders
+        fields = '__all__'

@@ -20,6 +20,8 @@ class Storages(models.Model):
         max_length=12
     )
 
+    objects = models.Manager()
+
     class Meta:
         unique_together = ('stor_city', 'stor_region', 'stor_country')
         verbose_name = gettext('Хранилище товаров')
