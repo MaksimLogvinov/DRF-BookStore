@@ -15,17 +15,20 @@ def add_product_in_cart(create_book):
 
 
 @pytest.mark.django_db
-def test_delete_product(add_product_cart, create_user):
+def test_delete_product_from_cart(add_product_cart, create_user):
     client.force_authenticate(user=create_user)
     response = client.get('/cart/remove/1/')
     assert response.status_code == 302
 
 
 @pytest.mark.django_db
-def test_add(create_book, create_user):
+def test_add_product_in_cart(create_book, create_user):
     client.force_authenticate(user=create_user)
     book = create_book
-    response = client.post(f'/cart/add/{book.id}/', data=dict(quantity=2, update=1))
+    response = client.post(
+        f'/cart/add/{book.id}/',
+        data=dict(quantity=2, update=1)
+    )
     assert response.status_code == 302
 
 
@@ -58,7 +61,7 @@ def test_history_cart(create_user, create_book):
 
 
 @pytest.mark.django_db
-def test_reserve_order(create_user, create_book):
+def test_reservation_order(create_user, create_book):
     client.force_authenticate(user=create_user)
     add_product_in_cart(create_book)
 

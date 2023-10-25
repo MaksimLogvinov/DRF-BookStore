@@ -5,16 +5,16 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 
 from apps.orders.models import OrderItem
-from apps.orders.tasks import purchase_message
+from apps.orders.tasks import send_notification_purchase_email
 from apps.products.models import Products
 
 
-def payment_order(cart, serializer, user):
+def handle_order(cart, serializer, user):
     if serializer.is_valid() and len(cart) > 0:
         with transaction.atomic():
             instance = create_order(serializer, cart, user)
             get_cashback(user, cart)
-            purchase_message(instance)
+            send_notification_purchase_email(instance)
         return HttpResponseRedirect(redirect_to='success')
     return HttpResponseRedirect(
         redirect_to='failed',

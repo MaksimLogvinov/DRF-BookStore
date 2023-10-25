@@ -7,7 +7,8 @@ from apps.cart.serializer import CartAddProductSerializer
 from apps.orders.models import Orders, ReservationProduct
 from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import create_order
-from apps.orders.tasks import reserve_products, before_end_reservation
+from apps.orders.tasks import (
+    send_notification_reservation_email, send_reservation_expiration_email)
 from apps.products.models import Products
 from apps.products.serializer import ProductSerializer
 
@@ -70,12 +71,12 @@ def order_reserve(serializer, cart, user):
         serializer.data['time_out'],
         '%Y-%m-%dT%H:%M:%S%z') - order.ord_date_created)
 
-    reserve_products.delay(
+    send_notification_reservation_email.delay(
         reserve.res_user_id.email,
         reserve.id,
     )
 
-    task = before_end_reservation.apply_async((
+    task = send_reservation_expiration_email.apply_async((
         reserve.res_user_id.email, reserve.id),
         countdown=duration_reservation.total_seconds() - 300
     )

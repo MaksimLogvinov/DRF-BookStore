@@ -6,7 +6,7 @@ from apps.main.services import send_email
 
 
 @shared_task
-def reserve_products(email, reserve_id):
+def send_notification_reservation_email(email, reserve_id):
     send_email(
         email,
         'cart/reserve/',
@@ -18,7 +18,7 @@ def reserve_products(email, reserve_id):
 
 
 @shared_task
-def before_end_reservation(email, reserve_id):
+def send_reservation_expiration_email(email, reserve_id):
     send_email(
         email,
         'cart/reserve/',
@@ -30,7 +30,7 @@ def before_end_reservation(email, reserve_id):
 
 
 @shared_task
-def purchase_message(instance):
+def send_notification_purchase_email(instance):
     instance.ord_user_id.user_profile.balance -= Decimal(instance.ord_discount)
     send_email(
         instance.ord_user_id.email,
