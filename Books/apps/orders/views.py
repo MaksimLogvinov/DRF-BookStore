@@ -6,7 +6,7 @@ from apps.cart.cart import Cart
 from apps.cart.services import get_products
 from apps.orders.models import Orders
 from apps.orders.serializer import OrderCreateSerializer
-from apps.orders.services import payment_order, show_discount
+from apps.orders.services import show_discount, handle_order
 
 
 class CreateOrderViewSet(viewsets.ModelViewSet):
@@ -25,7 +25,7 @@ class CreateOrderViewSet(viewsets.ModelViewSet):
         })
 
     def create(self, request, *args, **kwargs):
-        result = payment_order(
+        result = handle_order(
             Cart(request),
             OrderCreateSerializer(data=request.POST),
             request.user

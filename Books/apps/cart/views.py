@@ -9,7 +9,7 @@ from apps.cart.cart import Cart
 from apps.cart.serializer import CartAddProductSerializer, \
     OrderReserveSerializer, CartDeleteProductSerializer, OrderSerializer, \
     ShowReserveSerializer
-from apps.cart.services import add_product, get_products, order_reserve
+from apps.cart.services import add_product_in_cart, get_products, order_reserve
 from apps.orders.models import Orders, ReservationProduct
 from apps.products.models import Products
 from apps.products.serializer import ProductSerializer
@@ -23,7 +23,7 @@ class CartAddViewSet(viewsets.ModelViewSet):
     lookup_field = 'pk'
 
     def post(self, request, *args, **kwargs):
-        add_product(
+        add_product_in_cart(
             Cart(request),
             CartAddProductSerializer(data=request.POST),
             kwargs['pk']

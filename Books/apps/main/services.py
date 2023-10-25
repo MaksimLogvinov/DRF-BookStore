@@ -30,4 +30,7 @@ def send_email(recipient, link, subject, message):
             fail_silently=False
         )
     except Exception:
-        return logging.log(51, 'Смс попало в спам')
+        return logging.log(
+            51, f'Сообщение "{subject}" пользователю не было отправлено.'
+                f' Израсходован лимит сообщений'
+        )

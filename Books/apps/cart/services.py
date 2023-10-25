@@ -13,7 +13,7 @@ from apps.products.models import Products
 from apps.products.serializer import ProductSerializer
 
 
-def add_product(cart, serializer, product_id):
+def add_product_in_cart(cart, serializer, product_id):
     product = get_object_or_404(Products, id=product_id)
     if serializer.is_valid():
         cd = serializer.data
@@ -24,7 +24,7 @@ def add_product(cart, serializer, product_id):
         )
 
 
-def update_quantity(cart):
+def update_quantity_product(cart):
     for item in cart:
         item['update_quantity_form'] = CartAddProductSerializer(
             initial={'quantity': item['quantity'], 'update': True}
