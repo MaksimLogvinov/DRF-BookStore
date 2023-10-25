@@ -1,16 +1,20 @@
 import os
 from decimal import Decimal
 
+from django.db import transaction
 from django.http import HttpResponseRedirect
 
 from apps.orders.models import OrderItem
+from apps.orders.tasks import purchase_message
 from apps.products.models import Products
 
 
 def payment_order(cart, serializer, user):
     if serializer.is_valid() and len(cart) > 0:
-        create_order(serializer, cart, user)
-        get_cashback(user, cart)
+        with transaction.atomic():
+            instance = create_order(serializer, cart, user)
+            get_cashback(user, cart)
+            purchase_message(instance)
         return HttpResponseRedirect(redirect_to='success')
     return HttpResponseRedirect(
         redirect_to='failed',
@@ -27,6 +31,7 @@ def show_discount(cart):
 def get_cashback(user, cart):
     user.user_profile.balance += show_discount(cart)
     user.save()
+    return user
 
 
 def create_order(serializer, cart, user):

@@ -1,7 +1,7 @@
 import os
 
 from django.http import HttpResponseRedirect
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -48,11 +48,12 @@ class CartRemoveViewSet(viewsets.ModelViewSet):
         return HttpResponseRedirect(f'http://{os.environ.get("LOCALE_URL")}/cart/')
 
 
-class CartDetailViewSet(viewsets.ViewSet):
+class CartDetailViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
     permission_classes = (IsAuthenticated,)
+    queryset = Cart
 
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         return Response(data={
             'cart': get_products(Cart(request)),
             'results': 'Товары в корзине'}
@@ -90,6 +91,11 @@ class OrderReserveViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         serializer = OrderReserveSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                {'errors': f'{serializer.errors}'},
+                status=status.HTTP_404_NOT_FOUND
+            )
         data = order_reserve(serializer, Cart(request), request.user)
         return HttpResponseRedirect(
             content=data,

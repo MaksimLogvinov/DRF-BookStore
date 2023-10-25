@@ -32,11 +32,10 @@ class ShowReserveSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class OrderReserveSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ReservationProduct
-        fields = ('res_time_out',)
+class OrderReserveSerializer(serializers.Serializer):
+    time_out = serializers.DateTimeField(
+        label='До какого хранить',
+    )
 
 
 class HistoryListItemSerializer(serializers.ModelSerializer):

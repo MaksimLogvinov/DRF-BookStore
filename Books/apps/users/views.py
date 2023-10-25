@@ -13,8 +13,9 @@ from apps.users.serializers import (
     UserRegisterSerializer, ChangePasswordSerializer, SaveUserSerializer,
     SaveProfileSerializer
 )
-from apps.users.services import send_message, register_user, confirm_email, \
+from apps.users.services import register_user, confirm_email, \
     change_password, check_access, profile_update, user_update
+from apps.users.tasks import change_password_task
 
 User = get_user_model()
 
@@ -46,12 +47,7 @@ class ResetPasswordView(APIView):
 
     def post(self, request):
         content = {'text': gettext('Запрос за сброс пароля отправлен')}
-        send_message(
-            user=self.request.user,
-            url_name='/user/reset-password',
-            subject=gettext('Ваш пароль пытаются сменить'),
-            message=gettext('Перейдите по следующей ссылке, '
-                            'чтобы сменить пароль:'))
+        change_password_task(request.user)
         return Response(content, status=status.HTTP_200_OK)
 
 

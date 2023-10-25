@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG')
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS')]
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.users',
 ]
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL')
 
 SITE_ID = 1
 
@@ -99,16 +101,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Books.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get("NAME_DB"),
-        'USER': os.environ.get("USER_DB"),
-        'PASSWORD': os.environ.get("PASSWORD_DB"),
+        'NAME': os.environ.get("POSTGRES_DB"),
+        'USER': os.environ.get("POSTGRES_USER"),
+        'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
         'HOST': os.environ.get("HOST"),
         'PORT': os.environ.get("PORT"),
        }

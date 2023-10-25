@@ -1,0 +1,63 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: database
+    env_file:
+      - .db.env
+    restart: always
+    volumes:
+      - /books/lib/postgres/data
+    ports:
+      - "5433:5432"
+
+  rabbit:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - "15673:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - /books/lib/rabbit/data
+
+  web:
+    build: .
+    container_name: books
+    restart: always
+    depends_on:
+      - db
+      - rabbit
+    command: bash entrypoint.sh
+    volumes:
+      - .:/books
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    command: celery -A Books worker -l INFO
+    volumes:
+      - /books/lib/celery/data
+    depends_on:
+      - rabbit
+      - web
+    env_file:
+      - .env
+
+  nginx:
+    image: nginx
+    depends_on:
+      - web
+    volumes:
+      - ./static:/static/
+      - ./media:/media/
+    ports:
+      - "80:80"
+      - "443:443"

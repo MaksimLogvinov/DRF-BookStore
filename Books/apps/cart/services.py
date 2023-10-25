@@ -1,9 +1,13 @@
+import datetime
+import logging
+
 from django.shortcuts import get_object_or_404
 
 from apps.cart.serializer import CartAddProductSerializer
 from apps.orders.models import Orders, ReservationProduct
 from apps.orders.serializer import OrderCreateSerializer
 from apps.orders.services import create_order
+from apps.orders.tasks import reserve_products, before_end_reservation
 from apps.products.models import Products
 from apps.products.serializer import ProductSerializer
 
@@ -45,24 +49,38 @@ def get_products(cart):
 
 
 def order_reserve(serializer, cart, user):
-    if serializer.is_valid():
-        order = create_order(
-            OrderCreateSerializer({
-                'ord_description': '-',
-                'ord_address_delivery': '-',
-                'ord_paid': False,
-                'ord_price': cart.get_total_price(),
-                'ord_discount': 0
-            }),
-            cart,
-            user
-        )
-        ReservationProduct.objects.create(
-            res_order_id=order,
-            res_user_id=user,
-            res_time_out=serializer.data['res_time_out']
-        )
-        data = {'result': 'Заказ успешно забронирован'}
-    else:
-        data = {'errors': serializer.errors}
+    order = create_order(
+        OrderCreateSerializer({
+            'ord_description': '-',
+            'ord_address_delivery': '-',
+            'ord_paid': False,
+            'ord_price': cart.get_total_price(),
+            'ord_discount': 0
+        }),
+        cart,
+        user
+    )
+    reserve = ReservationProduct.objects.create(
+        res_order_id=order,
+        res_user_id=user,
+        res_time_out=serializer.data['time_out']
+    )
+
+    duration_reservation = (datetime.datetime.strptime(
+        serializer.data['time_out'],
+        '%Y-%m-%dT%H:%M:%S%z') - order.ord_date_created)
+
+    reserve_products.delay(
+        reserve.res_user_id.email,
+        reserve.id,
+    )
+
+    task = before_end_reservation.apply_async((
+        reserve.res_user_id.email, reserve.id),
+        countdown=duration_reservation.total_seconds() - 300
+    )
+    if not task:
+        logging.log(51, 'Ошибка в запланированной задаче')
+
+    data = {'success': 'Успешная бронь'}
     return data
