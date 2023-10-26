@@ -112,7 +112,7 @@ DATABASES = {
         'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
         'HOST': os.environ.get("HOST"),
         'PORT': os.environ.get("PORT"),
-       }
+    }
 }
 
 # Password validation
@@ -150,7 +150,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Logging
 
 text_log = logging.FileHandler('log.txt')
@@ -159,11 +158,9 @@ logging.basicConfig(handlers=(console_out, text_log), level=logging.WARNING)
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = []
+STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-MEDIA_URL = 'media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
