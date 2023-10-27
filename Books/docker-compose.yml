@@ -1,11 +1,11 @@
-version: '3.7'
+version: '3.8'
 
 services:
   db:
     image: postgres:latest
     container_name: database
     env_file:
-      - .db.env
+      - .env
     restart: always
     volumes:
       - /books/lib/postgres/data
@@ -34,14 +34,14 @@ services:
       - rabbit
     command: bash entrypoint.sh
     volumes:
-      - .:/books
-    ports:
-      - "8000:8000"
+      - .:/proj/
+      - static:/proj/static
     env_file:
       - .env
 
   celery:
     build: .
+    container_name: celery
     command: celery -A Books worker -l INFO
     volumes:
       - /books/lib/celery/data
@@ -52,12 +52,15 @@ services:
       - .env
 
   nginx:
-    image: nginx
+    build:
+      context: nginx/
+      dockerfile: Dockerfile
     depends_on:
       - web
     volumes:
-      - ./static:/static/
-      - ./media:/media/
+      - static:/proj/static
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
+volumes:
+  static:
