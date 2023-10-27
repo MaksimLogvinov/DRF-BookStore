@@ -5,7 +5,7 @@ services:
     image: postgres:latest
     container_name: database
     env_file:
-      - .db.env
+      - .env
     restart: always
     volumes:
       - /books/lib/postgres/data
@@ -32,10 +32,7 @@ services:
     depends_on:
       - db
       - rabbit
-    command: sh -c "python manage.py makemigrations && 
-                    python manage.py migrate &&
-                    python3 manage.py collectstatic --no-input --clear &&
-                    uwsgi --ini ./uwsgi.ini"
+    command: bash entrypoint.sh
     volumes:
       - .:/proj/
       - static:/proj/static
@@ -63,7 +60,7 @@ services:
     volumes:
       - static:/proj/static
     ports:
-      - "80:80"
+      - "81:80"
       - "443:443"
 volumes:
   static:
